@@ -11,11 +11,11 @@ row = 1 'Set Row Index
 Call Clear("Finished")
 
 ' Select the sheet and first cell where data should start
-Sheets("Paste Here").Select
-Cells(1, 1).Select
+Sheets("Paste Here").Activate
+Worksheets("Paste Here").Cells(1, 1).Select
 
 If ActiveCell.FormulaR1C1 <> "" Then 'As long as cell A1 is not empty do the following
-    Call stackCols("Paste Here") 'Stack columns and copy column one all the way down to corespond with data
+    Call stackCols("Paste Here") 'Stack columns and copy column one all the way down to correspond with stacked columns
 
     Call SortColTwo 'Sort Column's A and B with recorded Macro
     
@@ -27,16 +27,16 @@ If ActiveCell.FormulaR1C1 <> "" Then 'As long as cell A1 is not empty do the fol
             Exit For
         End If
     Next row
-    Rows(row).Select
-    Range(Selection, Selection.End(xlDown)).Select
+    Worksheets("Paste Here").Rows(row).Select
+    Worksheets("Paste Here").Range(Selection, Selection.End(xlDown)).Select
     Selection.Delete Shift:=xlUp
     ' End remove Empty Rows
     
     ' Move formatted data from Paste Here to Finished
-    Sheets("Paste Here").Select
-    Range("A2:B2").Select
-    Range(Selection, Selection.End(xlDown)).Select
-    Call MoveData(Selection.Value, "Paste Here", "Finished", 2, 1)
+    Application.CutCopyMode = False
+    Sheets("Paste Here").Activate
+    Worksheets("Paste Here").Range("A2:B2", Range("A2:B2").End(xlDown)).Cut Destination:=Sheets("Finished").Cells(2, 1)
+    ' End move formatted data
     
     ' Colorise the raw data we moved
     Call ColorizeIt
@@ -53,6 +53,11 @@ If ActiveCell.FormulaR1C1 <> "" Then 'As long as cell A1 is not empty do the fol
     
     Call formulaDrag(2, 3, rowTotal + 1, colTotal + 1)
     
+    Sheets("Paste Here").Activate
+    Worksheets("Paste Here").Range("A1").Select
+    Sheets("Finished").Activate
+    Worksheets("Finished").Range("A1").Select
+    
 
 Else
     MsgBox "Please Paste Scan Data on Sheet Paste Here Starting in Cell A1"
@@ -66,29 +71,14 @@ Private Sub Clear(SheetToClear)
 '
 
 '
-    Sheets(SheetToClear).Select
-    Cells.Select
-    Selection.Delete Shift:=xlUp
-End Sub
-Private Sub MoveData(CellRange, MoveFromSheet, MoveToSheet, row, col)
-'
-' MoveData Macro
-' Move the formatted data to new sheet
-'
-
-'
-    Application.CutCopyMode = False
-    Sheets(MoveFromSheet).Select
-    Selection.Value = CellRange
-    Selection.Cut
-    Sheets(MoveToSheet).Select
-    Cells(row, col).Select
-    ActiveSheet.Paste
+    Sheets(SheetToClear).Activate
+    Cells.Clear
 End Sub
 Private Sub SortColTwo()
 '
 ' SortColTwo Macro
 ' Sort the Data by Column Two
+' Recorded macro
 '
 
 '
@@ -117,32 +107,23 @@ Private Sub getHeadersAndFuncs()
     'Get headers
     endCol = getColCount("Headers & Formulas", 1, 1)
     Application.CutCopyMode = False
-    Sheets("Headers & Formulas").Select
-    Range(Cells(1, 1), Cells(1, endCol)).Select
-    Selection.Copy
-    Sheets("Finished").Select
-    Range("A1").Select
-    ActiveSheet.Paste
+    Worksheets("Headers & Formulas").Range(Cells(1, 1), Cells(1, endCol)).Copy Destination:=Sheets("Finished").Range("A1")
     
     'Get formulas
-    Sheets("Headers & Formulas").Select
-    Range(Cells(2, 3), Cells(2, endCol)).Select
-    Selection.Copy
-    Sheets("Finished").Select
-    Range("C2").Select
-    ActiveSheet.Paste
-    
+    Application.CutCopyMode = False
+    Worksheets("Headers & Formulas").Range(Cells(2, 3), Cells(2, endCol)).Copy Destination:=Sheets("Finished").Range("C2")
     
 End Sub
 Private Function getRowCount(Sheet, row, col)
 Dim total
 total = 0
-Sheets(Sheet).Select
-Cells(row, col).Select
+    
+    Sheets(Sheet).Activate
+    Worksheets(Sheet).Cells(row, col).Select
     While ActiveCell.FormulaR1C1 <> "" 'Get the number of rows we are working with
         row = row + 1 'Increment the rows
         total = total + 1
-        Cells(row, col).Select 'Select the new cell
+        Worksheets(Sheet).Cells(row, col).Select
     Wend
     getRowCount = total
     
@@ -150,14 +131,16 @@ End Function
 Private Function getColCount(Sheet, row, col)
 Dim total
 total = 0
-Sheets(Sheet).Select
-Cells(row, col).Select
+
+    Sheets(Sheet).Activate
+    Worksheets(Sheet).Cells(row, col).Select 'Broked ? dunno why
     While ActiveCell.FormulaR1C1 <> "" 'Get the number of columns we are working with
         col = col + 1 'Increment the columns
         total = total + 1
-        Cells(row, col).Select 'Select the new cell
+        Worksheets(Sheet).Cells(row, col).Select 'Select the new cell
     Wend
     getColCount = total
+    
 End Function
 Private Sub ColorizeIt()
 '
@@ -193,15 +176,17 @@ Private Sub formulaDrag(startRow, startCol, endRow, endCol)
 '
 
 '
-    Range(Cells(startRow, startCol), Cells(startRow, endCol)).Select
-    Selection.AutoFill Destination:=Range(Cells(startRow, startCol), Cells(endRow, endCol)), Type:=xlFillDefault
+    Range(Cells(startRow, startCol), Cells(startRow, endCol)).AutoFill Destination:=Range(Cells(startRow, startCol), Cells(endRow, endCol)), Type:=xlFillDefault
+
+   ' Selection.AutoFill Destination:=Range(Cells(startRow, startCol), Cells(endRow, endCol)), Type:=xlFillDefault
 
 End Sub
 Private Sub stackCols(Sheet)
-Sheets(Sheet).Select
+Sheets(Sheet).Activate
 Dim row, col, rowTemp, colTemp, rowTotal
 row = 1
 col = 1
+Cells(row, col).Select
 While ActiveCell.FormulaR1C1 <> "" 'While loop to insert Column A in between each column
         Application.CutCopyMode = False
         Columns(col).Select 'Select the Column to paste
