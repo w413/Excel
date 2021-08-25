@@ -1,4 +1,4 @@
-Attribute VB_Name = "Module1"
+Attribute VB_Name = "mlookup"
 Function mlookup(search_val As Variant, search_space As Range, return_space As Range, if_not_found)
 'This function will only work on column data
 
