@@ -1,4 +1,4 @@
-Attribute VB_Name = "Module3"
+Attribute VB_Name = "TimelessNumbers"
 Private Sub Clear(SheetToClear)
 '
 ' Clear Macro
