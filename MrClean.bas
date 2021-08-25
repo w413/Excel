@@ -1,4 +1,4 @@
-Attribute VB_Name = "Module11"
+Attribute VB_Name = "MrClean"
 Sub CleanJunk()
 Dim regexVal, sheetName As String
 Dim fname, ext
