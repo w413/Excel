@@ -134,7 +134,7 @@ Dim found 'Variable to keep track of how many matches we have
 found = 0 'Initialize found to 0
 
 On Error GoTo ErrorHandle
-For i = WorksheetFunction.match(search_val, search_space, 0) To j
+For i = WorksheetFunction.Match(search_val, search_space, 0) To j
 'Using match to get us close we look record the first and any proceeding matches quitting as soon as we find something that doesn't match
     If search_space(i).Value = search_val Then 'If we found our value record it in retval
         ReDim Preserve retval(0 To found)
@@ -171,18 +171,12 @@ Sub findAndReplace(sheet, find, replace)
         End If
     Next
 End Sub
-Sub saveHereAs(fName, extention)
-Dim ext
-''Value 52 corresponds to extension .xlsm which is an xlExcel12 or a binary workbook
-'ext = 50
-'fName = ActiveWorkbook.Path + "\" + MI_wbName + ".xlsb"
-''Value 52 corresponds to extension .xlsm which is an xlOpenXMLWorkbook
-'ext = 51
-'fname = ActiveWorkbook.Path + "\" + sheetName + ".xlsx"
-''Value 52 corresponds to extension .xlsm which is an xlOpenXMLWorkbookMacroEnabled
-'ext = 52
-'fname = ActiveWorkbook.Path + "\" + sheetName + ".xlsm"
-ActiveWorkbook.SaveAs Filename:=fName, FileFormat:=ext
+Sub saveHereAs(fname, ext)
+'
+' Work in progress
+' Doesn't save a usable file
+'
+ActiveWorkbook.SaveAs Filename:=ActiveWorkbook.Path + fname + ext
 End Sub
 
 Private Sub SortAscend(sheet, col)
